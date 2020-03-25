@@ -1,0 +1,168 @@
+swagger: "2.0"
+info:
+  title: User authorization/authentication API
+  description: User authorization/authentication API
+  version: 1.0.0
+host: localhost
+basePath: /user
+schemes:
+  - http
+paths:
+  /register:
+    post:
+      summary: Register new user
+      operationId: Register
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/UserRegistrationRequest'
+      responses:
+        201:
+          description: User created
+          schema:
+            $ref: '#/definitions/UserRegistrationResponse'
+        409:
+          description: User already exist
+          schema:
+            $ref: '#/definitions/UserErrorResponse'
+
+  /authenticate:
+    post:
+      summary: Login as user
+      operationId: Login
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/AuthenticationRequest'
+      responses:
+        200:
+          description: Successfully login
+          schema:
+            $ref: '#/definitions/UserLoginResponse'
+        400:
+          description: User not found or credentials are wrong
+          schema:
+            $ref: '#/definitions/UserErrorResponse'
+
+  /reset_password:
+    post:
+      summary: Reset user password
+      operationId: Reset_password
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/UserResetPasswordRequest'
+      responses:
+        200:
+          description: New password accepted
+          schema:
+            $ref: '#/definitions/StringResponse'
+        400:
+          description: Something goes wrong
+          schema:
+            $ref: '#/definitions/UserErrorResponse'
+
+definitions:
+  UserRegistrationRequest:
+    type: object
+    required:
+      - username
+      - email
+      - password
+    properties:
+      username:
+        type: string
+      password:
+        type: string
+        format: password
+      email:
+        type: string
+        format: email
+
+  UserRegistrationResponse:
+    type: object
+    properties:
+      username:
+        type: string
+      password:
+        type: string
+        format: password
+
+  AuthenticationRequest:
+    type: object
+    properties:
+      username:
+        type: string
+      password:
+        type: string
+        format: password
+    required:
+      - username
+      - password
+
+  AuthenticationResponse:
+    type: object
+    properties:
+      jwt:
+        type: string
+    required:
+      - jwt
+
+  UserResetPasswordRequest:
+    type: object
+    properties:
+      email:
+        type: string
+      newPassword:
+        type: string
+
+  StringResponse:
+    type: object
+    properties:
+      username:
+        type: string
+      message:
+        type: string
+
+  ErrorResponse:
+    type: object
+    properties:
+      errorCode:
+        type: string
+        enum:
+          - UNKNOWN_ERROR
+      errorMessage:
+        type: string
+    required:
+      - errorCode
+
+  UserErrorResponse:
+    allOf:
+      - $ref: '#/definitions/ErrorResponse'
+      - type: object
+        properties:
+          errorCode:
+              type: string
+              enum:
+                - UNKNOWN_ERROR
+                - USER_ALREADY_EXISTS
+                - INCORRECT_CREDENTIALS
+                - INCORRECT_PASSWORD

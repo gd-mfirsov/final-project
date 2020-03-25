@@ -13,7 +13,7 @@ import javax.persistence.*;
 @Data
 @EqualsAndHashCode(exclude = { "id", "user"})
 @NoArgsConstructor
-public class Order {
+public class ProductOrder {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -28,8 +28,10 @@ public class Order {
     @DateTimeFormat(pattern = "dd/MM/yyyy")
     private Date date;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    private Cart cart;
 
-
+    @Column(name = "status")
     private Status status;
 
 }
